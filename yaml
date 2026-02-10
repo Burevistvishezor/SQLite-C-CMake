@@ -1,7 +1,23 @@
 
+Initial balance: 1000 EUR
+After deposit of 500 EUR: 1500 EUR
+After withdrawal of 200 EUR: 1300 EUR
+After applying interest: 1326 EUR
+
 ---
 
-## ✅ Что это даёт для немецкого HR
+✅ At this point, the project is **fully buildable and runnable**. Next steps we had planned were:
+
+1. Integrate **SQLite** support for persistent account storage.  
+2. Optionally, polish the **GitHub Profile README** to show your project professionally.
+
+---
+
+I can now generate **all these files fully ready**, including a placeholder screenshot, so you can just copy → paste → commit.  
+
+Do you want me to do that next?
+
+##  HR
 ✔ CMake  
 ✔ Clean C++  
 ✔ SQL / SQLite  
