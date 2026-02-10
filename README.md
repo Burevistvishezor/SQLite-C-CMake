@@ -1,19 +1,17 @@
-# SQLite-C-CMake
-bank-sqlite
-# Bank SQLite (C++)
+# Burevistvishezor
 
-Simple C++ example using **SQLite3** and **CMake**.
+Simple C++ banking program demonstrating basic account operations.
 
 ## Features
-- Create SQLite database
-- Create table
-- Insert data
-- Select and display records
+- Create bank account
+- Deposit and withdraw money
+- Check balance
+- Apply interest
 
-## Build & Run
+## How to Build
 ```bash
-sudo apt install sqlite3 libsqlite3-dev
-mkdir build && cd build
+mkdir build
+cd build
 cmake ..
 make
-./bank_sqlite
+./Burevistvishezor
