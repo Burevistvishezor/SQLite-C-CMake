@@ -1,1 +1,4 @@
+Accounts in database:
+id: 1 | owner: Alice | balance: 1200.5 |
+id: 2 | owner: Bob   | balance: 800    |
 
