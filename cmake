@@ -1,3 +1,5 @@
+find_package(SQLite3 REQUIRED)
+target_link_libraries(... SQLite::SQLite3)
 cmake_minimum_required(VERSION 3.10)
 project(bank_sqlite)
 
