@@ -26,8 +26,8 @@ find_package(SQLite3 REQUIRED)
 
 # Main executable
 add_executable(bank_sqlite
-    src/main.cpp
-    src/BankAccount.cpp
+    src_fixed/main.cpp
+    src_fixed/BankAccount.cpp
 )
 
 target_include_directories(bank_sqlite
