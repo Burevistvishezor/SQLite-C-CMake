@@ -21,56 +21,31 @@ else()
     add_compile_options(-fPIC)
 endif()
 
-# Find dependencies
+# Find SQLite3
 find_package(SQLite3 REQUIRED)
 
-# Determine source directory - check both locations
-set(SOURCE_DIR "")
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src_fixed")
-    set(SOURCE_DIR "src_fixed")
-    message(STATUS "Using source files from: src_fixed/")
-elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src")
-    set(SOURCE_DIR "src")
-    message(STATUS "Using source files from: src/")
-else()
-    set(SOURCE_DIR ".")
-    message(STATUS "Using source files from: root directory")
-endif()
-
-# Source files
-set(SOURCES
-    ${SOURCE_DIR}/main.cpp
-    ${SOURCE_DIR}/BankAccount.cpp
+# Source files from root directory
+add_executable(bank_sqlite
+    main.cpp
+    BankAccount.cpp
 )
-
-# Main executable
-add_executable(bank_sqlite ${SOURCES})
 
 # Include directories
 target_include_directories(bank_sqlite
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Link libraries
+# Link SQLite3
 target_link_libraries(bank_sqlite
     PRIVATE
     SQLite::SQLite3
 )
 
-# Enable testing
-enable_testing()
-
-# Optional: Add test executable if tests exist
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests")
-    add_subdirectory(tests)
-endif()
-
 # Print configuration info
-message(STATUS "=================================")
-message(STATUS "BankSQLite ${PROJECT_VERSION}")
+message(STATUS "===== BankSQLite Configuration =====")
+message(STATUS "Project Version: ${PROJECT_VERSION}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "SQLite3: ${SQLite3_VERSION}")
-message(STATUS "=================================")
+message(STATUS "SQLite3 Version: ${SQLite3_VERSION}")
+message(STATUS "=====================================")
