@@ -59,3 +59,26 @@ mkdir src
 mkdir tests   # если не нужен, пропустите
 
 https://github.com/Burevistvishezor/SQLite-C-CMake/include/database.h
+#include "database.h"
+#include <iostream>
+
+int main() {
+    Database db("test.db");
+    if (!db.open()) {
+        std::cerr << "Не удалось открыть базу данных\n";
+        return 1;
+    }
+
+    if (!db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT);")) {
+        std::cerr << "Ошибка при создании таблицы\n";
+        return 1;
+    }
+
+    if (!db.execute("INSERT INTO users (name) VALUES ('Alice'), ('Bob');")) {
+        std::cerr << "Ошибка при вставке данных\n";
+        return 1;
+    }
+
+    std::cout << "База данных успешно обновлена!\n";
+    return 0;
+}
