@@ -57,3 +57,5 @@ cd /путь/к/вашему/проекту  # перейдите в папку 
 mkdir include
 mkdir src
 mkdir tests   # если не нужен, пропустите
+
+https://github.com/Burevistvishezor/SQLite-C-CMake/include/database.h
