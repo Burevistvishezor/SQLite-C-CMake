@@ -4,3 +4,8 @@ cmake -DSQLITE3_INCLUDE_DIR=/путь/к/include \
 
 git clone https://github.com/Burevistvishezor/SQLite-C-CMake.git
 cd SQLite-C-CMake
+mkdir build
+cd build
+cmake ..
+make
+./SQLiteApp
