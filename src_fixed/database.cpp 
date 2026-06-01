@@ -1,3 +1,37 @@
 mkdir -p SQLite-C-CMake/include
 mkdir -p SQLite-C-CMake/src
 mkdir -p SQLite-C-CMake/tests
+#include "database.h"
+#include <iostream>
+
+Database::Database(const std::string& db_name) : db_name_(db_name), db_(nullptr) {}
+
+Database::~Database() {
+    close();
+}
+
+bool Database::open() {
+    if (sqlite3_open(db_name_.c_str(), &db_) != SQLITE_OK) {
+        std::cerr << "Ошибка открытия базы: " << sqlite3_errmsg(db_) << "\n";
+        return false;
+    }
+    return true;
+}
+
+void Database::close() {
+    if (db_) {
+        sqlite3_close(db_);
+        db_ = nullptr;
+    }
+}
+
+bool Database::execute(const std::string& sql) {
+    char* errMsg = nullptr;
+    int rc = sqlite3_exec(db_, sql.c_str(), nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL ошибка: " << errMsg << "\n";
+        sqlite3_free(errMsg);
+        return false;
+    }
+    return true;
+}
