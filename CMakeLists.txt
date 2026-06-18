@@ -38,7 +38,7 @@ endif()
 set(SRC
     main.cpp
     BankAccount.cpp
-    src/database.cpp
+    src_fixed/database.cpp
 )
 
 add_executable(bank_sqlite ${SRC})
@@ -85,7 +85,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(test_database
     tests/test_database.cpp
-    src/database.cpp
+    src_fixed/database.cpp
     BankAccount.cpp
 )
 target_include_directories(test_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
