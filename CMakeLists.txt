@@ -1,19 +1,18 @@
-cmake_minimum_required(VERSION 3.16)
-project(BankSQLite 
+cmake_minimum_required(VERSION 3.20)
+project(BankSQLite
     VERSION 1.0.0
     DESCRIPTION "Modern C++ banking application with SQLite3 backend"
     LANGUAGES CXX)
 
-# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set output directories
+# Output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Compiler flags
+# Compiler warnings
 if(MSVC)
     add_compile_options(/W4)
 else()
@@ -21,72 +20,78 @@ else()
     add_compile_options(-fPIC)
 endif()
 
-# Find SQLite3
-find_package(SQLite3 REQUIRED)
+option(USE_SYSTEM_SQLITE "Use system-installed SQLite3 (find_package)" ON)
 
-# Source files from root directory
-add_executable(bank_sqlite
+if(USE_SYSTEM_SQLITE)
+    find_package(SQLite3 REQUIRED)
+else()
+    include(FetchContent)
+    FetchContent_Declare(
+      sqlite3
+      GIT_REPOSITORY https://github.com/sqlite/sqlite.git
+      GIT_TAG v3.42.0
+    )
+    FetchContent_MakeAvailable(sqlite3)
+endif()
+
+# Sources
+set(SRC
     main.cpp
     BankAccount.cpp
+    src/database.cpp
 )
 
-# Include directories
+add_executable(bank_sqlite ${SRC})
+
 target_include_directories(bank_sqlite
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Link SQLite3
-target_link_libraries(bank_sqlite
-    PRIVATE
-    SQLite::SQLite3
+# Link SQLite (system or vendored)
+if(USE_SYSTEM_SQLITE)
+    # Prefer modern imported target if available
+    if(TARGET SQLite::SQLite3)
+        target_link_libraries(bank_sqlite PRIVATE SQLite::SQLite3)
+    else()
+        target_link_libraries(bank_sqlite PRIVATE sqlite3)
+    endif()
+else()
+    target_sources(bank_sqlite PRIVATE ${sqlite3_SOURCE_DIR}/sqlite3.c)
+    target_include_directories(bank_sqlite PRIVATE ${sqlite3_SOURCE_DIR})
+endif()
+
+# Installation
+include(GNUInstallDirs)
+install(TARGETS bank_sqlite
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/BankAccount.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/database.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-# Print configuration info
-message(STATUS "===== BankSQLite Configuration =====")
-message(STATUS "Project Version: ${PROJECT_VERSION}")
-message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "SQLite3 Version: ${SQLite3_VERSION}")
-message(STATUS "=====================================")
-cmake_minimum_required(VERSION 3.14)
-
-project(SQLiteExample LANGUAGES CXX)
-
-# Включение поддержки C++17
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Пути
-set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
-set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-
-# Создание исполняемого файла
-add_executable(SQLiteApp
-    ${SRC_DIR}/main.cpp
-    ${SRC_DIR}/database.cpp
-)
-
-# Включение заголовков
-target_include_directories(SQLiteApp PRIVATE ${INCLUDE_DIR})
-
-# Подключение SQLite
-include(FetchContent)
-
-FetchContent_Declare(
-  sqlite3
-  GIT_REPOSITORY https://github.com/sqlite/sqlite.git
-  GIT_TAG v3.42.0
-)
-
-FetchContent_MakeAvailable(sqlite3)
-
-# Добавление исходников sqlite3
-target_sources(SQLiteApp PRIVATE ${sqlite3_SOURCE_DIR}/sqlite3.c)
-target_include_directories(SQLiteApp PRIVATE ${sqlite3_SOURCE_DIR})
-
-# Опционально: тесты
+# Tests
 enable_testing()
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.13.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
-# Можно добавить тесты позже
-
+add_executable(test_database
+    tests/test_database.cpp
+    src/database.cpp
+    BankAccount.cpp
+)
+target_include_directories(test_database PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(TARGET SQLite::SQLite3)
+    target_link_libraries(test_database PRIVATE SQLite::SQLite3 gtest_main)
+else()
+    target_link_libraries(test_database PRIVATE sqlite3 gtest_main)
+endif()
+add_test(NAME DatabaseTest COMMAND test_database)
