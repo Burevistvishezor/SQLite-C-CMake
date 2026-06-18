@@ -1,28 +1,34 @@
-mkdir -p SQLite-C-CMake/include
-mkdir -p SQLite-C-CMake/src
-mkdir -p SQLite-C-CMake/tests
-cd /путь/к/вашему/проекту  # перейдите в папку проекта
-mkdir include
-mkdir src
-mkdir tests   # если не нужен, пропустите
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <sqlite3.h>
 #include <string>
+#include <optional>
+
+struct sqlite3; // forward declaration
 
 class Database {
 public:
-    explicit Database(const std::string& db_name);
+    explicit Database(const std::string& dbPath) noexcept;
     ~Database();
 
+    // Open (or create) the database file
     bool open();
-    void close();
-    bool execute(const std::string& sql);
+
+    // Create schema (accounts table)
+    bool init();
+
+    // Save account balance (INSERT OR REPLACE)
+    bool saveAccount(const std::string& owner, double balance);
+
+    // Load account balance by owner. Returns std::nullopt if not found / on error
+    std::optional<double> loadBalance(const std::string& owner);
+
+    // Close explicitly (optional)
+    void close() noexcept;
 
 private:
-    std::string db_name_;
-    sqlite3* db_;
+    std::string dbPath_;
+    sqlite3* db_ = nullptr;
 };
 
 #endif // DATABASE_H
